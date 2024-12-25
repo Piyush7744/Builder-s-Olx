@@ -1,70 +1,5 @@
-// import { Link } from "react-router-dom";
-// import Header from "./Header";
-// import { useState } from "react";
-// import axios from "axios";
-// import API_URL from "../constants";
-
-// function Signup() {
-
-//     const [username, setusername] = useState('');
-//     const [password, setpassword] = useState('');
-//     const [email, setemail] = useState('');
-//     const [mobile, setmobile] = useState('');
-
-
-//     const handleApi = () => {
-//         const url = API_URL + '/signup';
-//         const data = { username, password, mobile, email };
-//         axios.post(url, data)
-//             .then((res) => {
-//                 if (res.data.message) {
-//                     alert(res.data.message);
-//                 }
-//             })
-//             .catch((err) => {
-//                 alert('SERVER ERR')
-//             })
-//     }
-//     return (
-//         <div>
-//             <Header />
-//             <div className="p-3 m-3">
-//                 <h3> Welcome to Signup Page </h3>
-//                 <br></br>
-//                 USERNAME
-//                 <input className="form-control" type="text" value={username}
-//                     onChange={(e) => {
-//                         setusername(e.target.value)
-//                     }} />
-//                 <br></br>
-//                 MOBILE
-//                 <input className="form-control" type="text" value={mobile}
-//                     onChange={(e) => {
-//                         setmobile(e.target.value)
-//                     }} />
-//                 <br></br>
-//                 EMAIL
-//                 <input className="form-control" type="text" value={email}
-//                     onChange={(e) => {
-//                         setemail(e.target.value)
-//                     }} />
-//                 <br></br>
-//                 PASSWORD
-//                 <input className="form-control" type="text" value={password}
-//                     onChange={(e) => {
-//                         setpassword(e.target.value)
-//                     }} />
-//                 <br></br>
-//                 <button className="btn btn-primary mr-3" onClick={handleApi}> SIGNUP </button>
-//                 <Link className="m-3" to="/login">  LOGIN </Link>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default Signup;
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import axios from "axios";
 import Header from "./Header";
 import API_URL from "../constants";
@@ -74,10 +9,21 @@ function Signup() {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
+    const [isVerifier, setIsVerifier] = useState('no'); // "yes" or "no"
+    const [verifierPassword, setVerifierPassword] = useState(''); // For popup password
+    const [showPopup, setShowPopup] = useState(false);
 
     const handleApi = () => {
+
         const url = API_URL + '/signup';
-        const data = { username, password, mobile, email };
+        const data = {
+            username,
+            password,
+            mobile,
+            email,
+            isVerifier: isVerifier === "yes" ? "yes" : "no" // Adding verifier identity
+        };
+
         axios.post(url, data)
             .then((res) => {
                 if (res.data.message) {
@@ -88,6 +34,14 @@ function Signup() {
                 alert('Server error. Please try again later.');
             });
     };
+
+    useEffect(() => {
+        if (isVerifier === "yes") {
+            setShowPopup(true);
+        } else {
+            setShowPopup(false);
+        }
+    }, [isVerifier]);
 
     const styles = {
         container: {
@@ -166,6 +120,36 @@ function Signup() {
             fontWeight: "bold",
             textDecoration: "none",
         },
+        radioGroup: {
+            display: "flex",
+            gap: "15px",
+            marginBottom: "15px",
+        },
+        radioLabel: {
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+        },
+        popup: {
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: "20px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+            borderRadius: "10px",
+            zIndex: 1000,
+        },
+        overlay: {
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 999,
+        },
     };
 
     return (
@@ -173,9 +157,7 @@ function Signup() {
             <Header />
             <div style={styles.container}>
                 <div style={styles.card}>
-                    {/* Left side with image */}
                     <div style={styles.leftSide}></div>
-                    {/* Right side with form */}
                     <div style={styles.rightSide}>
                         <h2 style={styles.title}>Create Your Account</h2>
                         <form
@@ -226,6 +208,60 @@ function Signup() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
+
+                            <label style={styles.label}>Are you a Verifier?</label>
+                            <div style={styles.radioGroup}>
+                                <label style={styles.radioLabel}>
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        checked={isVerifier === "yes"}
+                                        onChange={() => setIsVerifier("yes")}
+                                    />
+                                    Yes
+                                </label>
+                                <label style={styles.radioLabel}>
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        checked={isVerifier === "no"}
+                                        onChange={() => setIsVerifier("no")}
+                                    />
+                                    No
+                                </label>
+                            </div>
+
+                            {showPopup && (
+                                <div style={styles.overlay}>
+                                    <div style={styles.popup}>
+                                        <h3>Enter Verifier Password</h3>
+                                        <input
+                                            type="password"
+                                            style={styles.input}
+                                            placeholder="Enter Verifier Password"
+                                            value={verifierPassword}
+                                            onChange={(e) => setVerifierPassword(e.target.value)}
+                                        />
+                                        <button
+                                            style={styles.button}
+                                            onClick={() => {
+                                                if (verifierPassword === "1234") {
+                                                    alert("Verifier password accepted. Proceed with signup.");
+                                                    setShowPopup(false); // Close the popup
+                                                    setVerifierPassword(""); // Reset password input
+                                                } else {
+                                                    alert("Password is incorrect.");
+                                                    setShowPopup(false);
+                                                    setVerifierPassword(""); // Reset password input
+                                                }
+                                            }}
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             <button
                                 style={styles.button}
                                 onClick={handleApi}

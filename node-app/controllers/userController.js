@@ -6,6 +6,7 @@ const Users = mongoose.model('Users', {
     mobile: String,
     email: String,
     password: String,
+    isVerifier:String,
     likedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Products' }]
 });
 
@@ -28,7 +29,8 @@ module.exports.signup = (req, res) => {
     const password = req.body.password;
     const email = req.body.email;
     const mobile = req.body.mobile;
-    const user = new Users({ username: username, password: password, email, mobile });
+    const isVerifier = req.body.isVerifier;
+    const user = new Users({ username: username, password: password, email, mobile,isVerifier});
     user.save()
         .then(() => {
             res.send({ message: 'saved success.' })
@@ -48,7 +50,8 @@ module.exports.myProfileById = (req, res) => {
                 message: 'success.', user: {
                     email: result.email,
                     mobile: result.mobile,
-                    username: result.username
+                    username: result.username,
+                    isVerifier:result.isVerifier
                 }
             })
         })
@@ -68,7 +71,8 @@ module.exports.getUserById = (req, res) => {
                 message: 'success.', user: {
                     email: result.email,
                     mobile: result.mobile,
-                    username: result.username
+                    username: result.username,
+                    isVerifier: result.isVerifier
                 }
             })
         })
