@@ -43,6 +43,7 @@ app.post('/signup', userController.signup)
 app.get('/my-profile/:userId', userController.myProfileById)
 app.get('/get-user/:uId', userController.getUserById)
 app.post('/login', userController.login)
+app.post('/unlike-product', userController.unlikeProduct);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

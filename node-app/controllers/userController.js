@@ -117,3 +117,15 @@ module.exports.likedProducts = (req, res) => {
         })
 
 }
+
+module.exports.unlikeProduct = (req, res) => {
+    const { productId, userId } = req.body;
+
+    Users.updateOne({ _id: userId }, { $pull: { likedProducts: productId } })
+        .then(() => {
+            res.send({ message: 'unliked success' });
+        })
+        .catch(() => {
+            res.send({ message: 'server err' });
+        });
+};

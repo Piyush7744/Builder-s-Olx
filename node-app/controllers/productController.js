@@ -60,35 +60,89 @@ module.exports.search = (req, res) => {
         })
 }
 
+// module.exports.addProduct = (req, res) => {
+
+//     console.log(req.files);
+//     console.log(req.body);
+
+
+//     const plat = req.body.plat;
+//     const plong = req.body.plong;
+//     const pname = req.body.pname;
+//     const pdesc = req.body.pdesc;
+//     const price = req.body.price;
+//     const category = req.body.category;
+//     const pimage = req.files.pimage[0].path;
+//     const pimage2 = req.files.pimage2[0].path;
+//     const addedBy = req.body.userId;
+
+//     const product = new Products({
+//         pname, pdesc, price, category, pimage, pimage2, addedBy, pLoc: {
+//             type: 'Point', coordinates: [plat, plong]
+//         }
+//     });
+//     product.save()
+//         .then(() => {
+//             res.send({ message: 'saved success.' })
+//         })
+//         .catch(() => {
+//             res.send({ message: 'server err' })
+//         })
+// }
+
 module.exports.addProduct = (req, res) => {
+    try {
+        console.log(req.files);
+        console.log(req.body);
 
-    console.log(req.files);
-    console.log(req.body);
-
-
-    const plat = req.body.plat;
-    const plong = req.body.plong;
-    const pname = req.body.pname;
-    const pdesc = req.body.pdesc;
-    const price = req.body.price;
-    const category = req.body.category;
-    const pimage = req.files.pimage[0].path;
-    const pimage2 = req.files.pimage2[0].path;
-    const addedBy = req.body.userId;
-
-    const product = new Products({
-        pname, pdesc, price, category, pimage, pimage2, addedBy, pLoc: {
-            type: 'Point', coordinates: [plat, plong]
+        // Check for uploaded files
+        if (!req.files || !req.files.pimage || !req.files.pimage2) {
+            return res.status(400).json({ message: 'Missing required images' });
         }
-    });
-    product.save()
-        .then(() => {
-            res.send({ message: 'saved success.' })
-        })
-        .catch(() => {
-            res.send({ message: 'server err' })
-        })
-}
+
+        const plat = parseFloat(req.body.plat);
+        const plong = parseFloat(req.body.plong);
+        const pname = req.body.pname;
+        const pdesc = req.body.pdesc;
+        const price = req.body.price;
+        const category = req.body.category;
+        const pimage = req.files.pimage[0].path;
+        const pimage2 = req.files.pimage2[0].path;
+        const addedBy = req.body.userId;
+
+        // Validate required fields
+        if (!plat || !plong || !pname || !pdesc || !price || !category || !addedBy) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        const product = new Products({
+            pname,
+            pdesc,
+            price,
+            category,
+            pimage,
+            pimage2,
+            addedBy,
+            pLoc: {
+                type: 'Point',
+                coordinates: [plat, plong]
+            }
+        });
+
+        product.save()
+            .then(() => {
+                res.status(201).json({ message: 'Product saved successfully' });
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({ message: 'Server error' });
+            });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Unexpected server error' });
+    }
+};
+
 
 
 module.exports.getProducts = (req, res) => {
@@ -137,4 +191,3 @@ module.exports.myProducts = (req, res) => {
         })
 
 }
-

@@ -17,11 +17,11 @@ function Home() {
     const [search, setsearch] = useState('');
     const [issearch, setissearch] = useState(false);
 
-    // useEffect(() => {
-    //     if (!localStorage.getItem('token')) {
-    //         navigate('/login')
-    //     }
-    // }, [])
+    useEffect(() => {
+        if (!localStorage.getItem('token')) {
+            navigate('/login')
+        }
+    }, [])
 
     useEffect(() => {
         const url = API_URL + '/get-products';
